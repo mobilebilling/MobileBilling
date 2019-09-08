@@ -1,6 +1,7 @@
 package com.billing.main;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,6 +9,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.view.WindowManager;
@@ -69,7 +71,10 @@ public class Util {
     public static void callno(Context context, String phone_number) {
 
         phone_number = phone_number.trim();
-
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.CALL_PHONE}, 1);
+            return;
+        }
         if (phone_number != null && !phone_number.equals("")) {
             Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"
                     + phone_number));
@@ -152,10 +157,13 @@ public class Util {
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
+
+            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
+
             return;
         }
-        String deviceid = tm.getDeviceId() + "";// 获取智能设备唯一编号
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -163,8 +171,10 @@ public class Util {
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
+            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.SEND_SMS}, 1);
             return;
         }
+        String deviceid = tm.getDeviceId() + "";// 获取智能设备唯一编号
         String imsi = tm.getSubscriberId() + "";// 得到用户Id
         String dev = sp.getString("Deviceid", "") + "";
         String im = sp.getString("Imsi", "") + "";
